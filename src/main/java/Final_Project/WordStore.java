@@ -28,10 +28,6 @@ public class WordStore {
 
     }
 
-
-    public static void main(String[] args) {
-        new WordStore(Database.dbURI).checkWord("apple");
-    }
         public WordObject checkWord(String wordSearched){
 
 
