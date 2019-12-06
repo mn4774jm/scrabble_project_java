@@ -133,7 +133,9 @@ public class GamePlayGUI extends JFrame {
         String wordToCheck = dictionaryTextBox.getText();
         WordObject wordSearch = wordController.searchForWord(wordToCheck);
         if (wordSearch != null) {
-            showMessageDialog("Congratulations! Match found.");
+            String word = wordSearch.getWord();
+            String def = wordSearch.getDefinition();
+            showMessageDialog("Congratulations! Match found.\nWord: "+word+"\nDefinition: "+def);
         }else{
             showMessageDialog("No matches found");
         }
