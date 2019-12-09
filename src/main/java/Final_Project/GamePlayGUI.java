@@ -44,9 +44,9 @@ public class GamePlayGUI extends JFrame {
     List<String> playerTurnList = new ArrayList();
 //    //hashmap to hold player names and scores
 //    Map<String, List<Integer>> playerNameScore = new HashMap<>();
-    Map<Integer, List> playerIDScore = new HashMap<>();
+    Map<Integer, Integer> playerIDScore = new HashMap<>();
 //    //map to hold player name and position in jatable
-//    Map<String, Integer> playerTablePosition = new HashMap<>();
+    Map<String, Integer> playerTablePosition = new HashMap<>();
 
     public int turnCounter =0;
 
@@ -114,12 +114,10 @@ public class GamePlayGUI extends JFrame {
             //add player names to challenge jcombo box
             challengeComboBox.addItem(playerName);
             //add player to hashmap for jtable positioning in challenge mode
-//            playerTablePosition.put(playerName,x-1);
+            playerTablePosition.put(playerName,x-1);
             //initialize values for playerNameScore map
 
-            List<Integer> primer = new ArrayList();
-            primer.add(0);
-            playerIDScore.put(x-1,primer);
+            playerIDScore.put(x-1,0);
             System.out.println(playerIDScore); //TODO last thing I did was set up hashmap
         }
 
@@ -137,30 +135,12 @@ public class GamePlayGUI extends JFrame {
         }
 
         public void enterScores() {
-        List<Integer> tempList = new ArrayList<>();
+
             //get value from enterWord text box
             int scoreString = Integer.parseInt(enterWordTextBox.getText());
 
-            //getting list from hashmap
-            List addScore = playerIDScore.get(turnCounter);
-
-            //converting object from list into int
-            for (Object things : addScore){
-                int temp = Integer.parseInt(things.toString());
-                //add to new list created at beginning of method
-                tempList.add(temp);
-
-            }
-            //attempting to add a new value to list; this seems to only allow for two values
-            //if it helps the hashmap it is coming from was created on line 47 and it was initialized on line 120 -122
-            tempList.add(scoreString);
-            System.out.println(tempList);
-
-            //TODO figure out how to get my list out to modify/way to add directly to list
-//            addScore.add(scoreString);
-//            playerIDScore.put(turnCounter, addScore);
-//            System.out.println(playerIDScore);
-
+            //used for last players score; this will be required for challenge mode to work
+            playerIDScore.put(turnCounter, scoreString);
 
             //pull current player score from the table model
             int pulledValue = Integer.parseInt(tableModel.getValueAt(turnCounter, 1).toString());
@@ -200,6 +180,22 @@ public class GamePlayGUI extends JFrame {
         }
         public void challengeCall(){
         //TODO set up challenge method
+            //get challenged players name
+            String challengedPlayer = (String) challengeComboBox.getSelectedItem();
+            String challengedWord= JOptionPane.showInputDialog("Enter word in question");
+            WordObject wordSearch = wordController.searchForWord(challengedWord);
+            if (wordSearch != null) {
+                String word = wordSearch.getWord();
+                String wordtype = wordSearch.getWordType();
+                String def = wordSearch.getDefinition();
+                showMessageDialog("Challenge failed! Match found.\nWord: "+word+"\nWord Type: "+wordtype+ "\nDefinition: "+def);
+            }else{
+                //get challenged players positional data and last score
+                int playerPosition = playerTablePosition.get(challengedPlayer);
+                System.out.println(playerPosition);
+                //get last entered score
+                showMessageDialog("Challenge has succeeded! No matching words were found\n");
+            }
         }
 
         public void finishCall(){

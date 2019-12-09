@@ -10,21 +10,24 @@ public class WordStore {
 
     private String dbURI;
 
-    WordStore(String databaseURI) {
+    WordStore(String databaseURI) throws SQLException {
         this.dbURI = databaseURI;
 
-//        try (Connection conn = DriverManager.getConnection(dbURI);
-//             Statement statement = conn.createStatement()) {
-//            String createTable = "CREATE TABLE if not exists entries " +
-//                    "(word varchar(25) NOT NULL, " +
-//                    "wordtype varchar(20) NOT NULL, " +
-//                    "definition text NOT NULL);" +
-//                    "INSERT INTO entries VALUES
-//            statement.executeUpdate(createTable);
-//
-//        } catch (SQLException sqle) {
-//            throw new RuntimeException(sqle);
-//        }
+        try(Connection connection = DriverManager.getConnection(databaseURI);
+            Statement statement = connection.createStatement()) {
+            //create variable to save sql statement for table creation
+            String createTableSQL =
+                    "CREATE TABLE IF NOT EXISTS playerScores (" +
+                            "name TEXT NOT NULL," +
+                            "score INTEGER NOT NULL," +
+                            "turn INTEGER NOT NULL)";
+            //pass variable to execute sql update
+            statement.executeUpdate(createTableSQL);
+            //catch/throw runtime exception
+        }catch (SQLException sqle){
+            throw new RuntimeException(sqle);
+        }
+
 
     }
 

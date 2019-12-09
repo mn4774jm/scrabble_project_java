@@ -16,18 +16,12 @@ public class main {
 
 
     //create database
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         String databaseURI = dbURI;
 
         WordStore wordStore = new WordStore(databaseURI);
         WordController wordController = new WordController(wordStore);
         gamePlayGUI = new GamePlayGUI(wordController);
-
-//        Map<String, String> playerData = new HashMap<>();
-//        GamePlayGUI gui = new GamePlayGUI(playerData);
-//
-
-
 
     }
 
