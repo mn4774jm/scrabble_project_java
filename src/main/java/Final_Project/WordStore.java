@@ -81,8 +81,8 @@ public class WordStore {
             }
 
         }
-        public List<scoreObject> getCurrentScore(int id) {
-            String sqlIdSearch = "SELECT * FROM playerScores WHERE playerID = ?";
+        public scoreCounting getCurrentScore(int id) {
+            String sqlIdSearch = "SELECT SUM(Score) AS playerSum FROM playerScores WHERE playerID = ?";
             try (Connection connection = DriverManager.getConnection(dbURI);
                  PreparedStatement preparedStatement = connection.prepareStatement(sqlIdSearch)) {
                 List<scoreObject> scores = new ArrayList<>();
@@ -90,19 +90,15 @@ public class WordStore {
                 preparedStatement.setInt(1, id);
                 //execute query
                 ResultSet resultSet = preparedStatement.executeQuery();
-                //pull row information to create new object
-                while (resultSet.next()) {
-                    String name = resultSet.getString("name");
-                    int score = resultSet.getInt("score");
-                    int playerID = resultSet.getInt("playerID");
-                    Date date = resultSet.getDate("playTime");
+
+                    int score = resultSet.getInt("playerSum");
 
                     //create new object with above variables
-                    scoreObject scoreGrab = new scoreObject(name, score, playerID, date);
-                    scores.add(scoreGrab);
-                }
+                    scoreCounting scoreGrab = new scoreCounting(score);
+//                    scores.add(scoreGrab);
+//                }
                 //return object
-                return scores;
+                return scoreGrab;
             } catch (SQLException sqle) {
                 // return null if no matches found
                 return null;

@@ -114,7 +114,7 @@ public class GamePlayGUI extends JFrame {
             Date date = new Date();
             scoreObject newObject = new scoreObject(playerName,scorePrimer,id, date);
             //pass to controller
-            wordController.addNames(newObject);
+            wordController.addNewScore(newObject);
 
             //add cell directly to jtable with zero as the default for row 0
             String[] newTableRow = {playerName, "0"};
@@ -150,27 +150,21 @@ public class GamePlayGUI extends JFrame {
         }
 
         public void enterScores() throws NoSuchFieldException {
-        //TODO add all player scores to playerScores table
+
             //get value from enterWord text box
             int scoreString = Integer.parseInt(enterWordTextBox.getText());
-
-            //used for last players score; this will be required for challenge mode to work
-            playerIDScore.put(turnCounter, scoreString);
-        //TODO pull SUM of scores from database, add user input score, plug into model
-            List<scoreObject> scoreSearch = wordController.searchScore(turnCounter);
-            int currentScore = 0;
-            for (scoreObject sItem : scoreSearch){
-                currentScore += sItem.getPlayerScore();
-            }
-
-            //pull current player score from the table model
-            int pulledValue = Integer.parseInt(tableModel.getValueAt(turnCounter, 1).toString());
-
-            //add text box score to jtable score
-            int finalInt = pulledValue + scoreString;
-
+//            //used for last players score; this will be required for challenge mode to work
+//            playerIDScore.put(turnCounter, scoreString);
+            //get new date value
+            Date date = new Date();
+            //create new object for new row in DB
+            scoreObject newScore = new scoreObject(playerTurnList.get(turnCounter),scoreString,turnCounter,date);
+            //call method to create new row
+            wordController.addNewScore(newScore);
+            //get sum value from database
+            scoreCounting scoreSearch = wordController.searchScore(turnCounter);
             //set set score to appropriate cell
-            tableModel.setValueAt(finalInt, turnCounter, 1);
+            tableModel.setValueAt(scoreSearch.getPlayerScore(), turnCounter, 1);
             //if not the last player in list, add 1 to the turn counter to advance the game
             if (turnCounter < playerTurnList.size() - 1) {
                 turnCounter += 1;
@@ -200,6 +194,8 @@ public class GamePlayGUI extends JFrame {
         }else{
             showMessageDialog("No matches found");
         }
+        //clear text from box
+        dictionaryTextBox.setText("");
         }
 
         public void challengeCall(){
@@ -213,6 +209,7 @@ public class GamePlayGUI extends JFrame {
                 String wordtype = wordSearch.getWordType();
                 String def = wordSearch.getDefinition();
                 showMessageDialog("Challenge failed! Match found.\nWord: "+word+"\nWord Type: "+wordtype+ "\nDefinition: "+def);
+
             }else{
                 //get challenged players positional data and last score
                 int playerPosition = playerTablePosition.get(challengedPlayer);

@@ -12,7 +12,7 @@ public class WordController {
     protected WordObject searchForWord(String wordToCheck) {
         return wordStore.checkWord(wordToCheck);
     }
-    protected boolean addNames(scoreObject nameToAdd) {
+    protected boolean addNewScore(scoreObject nameToAdd) {
        try{
            wordStore.addScore(nameToAdd);
            return true;
@@ -20,8 +20,8 @@ public class WordController {
            return false;
        }
     }
-    protected List<scoreObject> searchScore(int turnCounter) {
-        List<scoreObject> score = wordStore.getCurrentScore(turnCounter);
+    protected scoreCounting searchScore(int turnCounter) {
+        scoreCounting score = wordStore.getCurrentScore(turnCounter);
         return score;
     }
 }
