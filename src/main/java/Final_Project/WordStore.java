@@ -81,6 +81,7 @@ public class WordStore {
             }
 
         }
+
         public scoreCounting getCurrentScore(int id) {
             String sqlIdSearch = "SELECT SUM(Score) AS playerSum FROM playerScores WHERE playerID = ?";
             try (Connection connection = DriverManager.getConnection(dbURI);
@@ -104,4 +105,27 @@ public class WordStore {
                 return null;
             }
         }
+
+    public LastScoreObject retreiveLastScore(int id) {
+        String sqlIdSearch = "SELECT score FROM playerScores WHERE playerID = ? AND score > 0 ORDER by playTime DESC LIMIT 1";
+        try (Connection connection = DriverManager.getConnection(dbURI);
+             PreparedStatement preparedStatement = connection.prepareStatement(sqlIdSearch)) {
+
+            //setting parameter with user entered name
+            preparedStatement.setInt(1, id);
+            //execute query
+            ResultSet resultSet = preparedStatement.executeQuery();
+            int score = resultSet.getInt("score");
+
+            //create new object with above variables
+            LastScoreObject scoreGrab = new LastScoreObject(score);
+
+            //return object
+            return scoreGrab;
+        } catch (SQLException sqle) {
+            // return null if no matches found
+            return null;
+        }
+    }
+
     }

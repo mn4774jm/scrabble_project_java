@@ -24,4 +24,8 @@ public class WordController {
         scoreCounting score = wordStore.getCurrentScore(turnCounter);
         return score;
     }
+    protected LastScoreObject retrieveScore(int id){
+        LastScoreObject lastScoreObject = wordStore.retreiveLastScore(id);
+        return lastScoreObject;
+    }
 }

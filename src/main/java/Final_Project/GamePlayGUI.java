@@ -41,12 +41,10 @@ public class GamePlayGUI extends JFrame {
     Map<String, String> playerData = new HashMap<>();
     //create table model
     DefaultTableModel tableModel = new DefaultTableModel();
-    //holds player names to display in jlabel
+    //holds player names to display in jlabel and for retreiving data
     List<String> playerTurnList = new ArrayList();
-
-    Map<Integer, Integer> playerIDScore = new HashMap<>();
-//    //map to hold player name and position in jatable
-    Map<String, Integer> playerTablePosition = new HashMap<>();
+    //holds player id; doubles as positional data for jtable
+    Map<String, Integer> idNamePairMap = new HashMap<>();
 
     public int turnCounter =0;
     private Object sItem;
@@ -110,6 +108,7 @@ public class GamePlayGUI extends JFrame {
             int scorePrimer = 0;
             //create a player id number
             int id = x-1;
+            idNamePairMap.put(playerName, id);
             //create new ticket object for each player
             Date date = new Date();
             scoreObject newObject = new scoreObject(playerName,scorePrimer,id, date);
@@ -123,11 +122,6 @@ public class GamePlayGUI extends JFrame {
             //add player names to challenge jcombo box
             challengeComboBox.addItem(playerName);
             //add player to hashmap for jtable positioning in challenge mode
-            playerTablePosition.put(playerName,x-1);
-            //initialize values for playerNameScore map
-
-            playerIDScore.put(x-1,0);
-            System.out.println(playerIDScore); //TODO last thing I did was set up hashmap
         }
 
         }
@@ -153,9 +147,7 @@ public class GamePlayGUI extends JFrame {
 
             //get value from enterWord text box
             int scoreString = Integer.parseInt(enterWordTextBox.getText());
-//            //used for last players score; this will be required for challenge mode to work
-//            playerIDScore.put(turnCounter, scoreString);
-            //get new date value
+
             Date date = new Date();
             //create new object for new row in DB
             scoreObject newScore = new scoreObject(playerTurnList.get(turnCounter),scoreString,turnCounter,date);
@@ -179,18 +171,16 @@ public class GamePlayGUI extends JFrame {
         }
 
         public void dictionaryCall(){
-        //get text from box
-        String wordToCheck = dictionaryTextBox.getText();
-        //call method to fix text for case sensitivity when accessing database
-        String fixedWord = firstLetterUpper(wordToCheck);
+        //get text from box and change case
+        String wordToCheck = firstLetterUpper(dictionaryTextBox.getText());
         //pass text to controller for use with database
-        WordObject wordSearch = wordController.searchForWord(fixedWord);
+        WordObject wordSearch = wordController.searchForWord(wordToCheck);
         //object returned
         if (wordSearch != null) {
             String word = wordSearch.getWord();
             String wordtype = wordSearch.getWordType();
             String def = wordSearch.getDefinition();
-            showMessageDialog("Congratulations! Match found.\nWord: "+word+"\nWord Type: "+wordtype+ "\nDefinition: "+def);
+            showMessageDialog(String.format("Congratulations! Match found.\nWord: %s\nWord Type: %s\nDefinition: %s",word, wordtype, def));
         }else{
             showMessageDialog("No matches found");
         }
@@ -202,22 +192,44 @@ public class GamePlayGUI extends JFrame {
         //TODO set up challenge method
             //get challenged players name
             String challengedPlayer = (String) challengeComboBox.getSelectedItem();
-            String challengedWord= JOptionPane.showInputDialog("Enter word in question");
-            WordObject wordSearch = wordController.searchForWord(challengedWord);
-            if (wordSearch != null) {
-                String word = wordSearch.getWord();
-                String wordtype = wordSearch.getWordType();
-                String def = wordSearch.getDefinition();
-                showMessageDialog("Challenge failed! Match found.\nWord: "+word+"\nWord Type: "+wordtype+ "\nDefinition: "+def);
+            //get player id from hashmap using playername as the key
+            int id = idNamePairMap.get(challengedPlayer);
+            //get last score from DB
+            LastScoreObject lastPlay = wordController.retrieveScore(id);
+            //Store to int
+            int penalty = lastPlay.getLastPlay();
+            int scoreHammer = penalty - (penalty*2);
+            Date date = new Date();
+            //get word to check from the play, convert to correct case format
+            String challengedWord = JOptionPane.showInputDialog("Enter word in question");
+            challengedWord = firstLetterUpper(challengedWord);
 
-            }else{
-                //get challenged players positional data and last score
-                int playerPosition = playerTablePosition.get(challengedPlayer);
-                System.out.println(playerPosition);
-                //get last entered score
-                showMessageDialog("Challenge has succeeded! No matching words were found\n");
+                WordObject wordSearch = wordController.searchForWord(challengedWord);
+                if (wordSearch != null) {
+                    String word = wordSearch.getWord();
+                    String wordtype = wordSearch.getWordType();
+                    String def = wordSearch.getDefinition();
+                    showMessageDialog(String.format(
+                            "Challenge failed! Match found.\nWord: %s\nWord Type: %s\nDefinition: %s\n\n" +
+                                    "%d points will be deducted from %s's score",word, wordtype, def, penalty, playerTurnList.get(turnCounter)));
+
+                    scoreObject negativeRow = new scoreObject(playerTurnList.get(turnCounter), scoreHammer, idNamePairMap.get(playerTurnList.get(turnCounter)),date);
+                    wordController.addNewScore(negativeRow);
+                    scoreCounting scoreSearch = wordController.searchScore(turnCounter);
+                    tableModel.setValueAt(scoreSearch.getPlayerScore(), turnCounter, 1);
+
+                } else {
+                    //get challenged players positional data and last score
+                    scoreObject negativeRow = new scoreObject(challengedPlayer, scoreHammer, idNamePairMap.get(challengedPlayer),date);
+                    wordController.addNewScore(negativeRow);
+                    scoreCounting scoreSearch = wordController.searchScore(idNamePairMap.get(challengedPlayer));
+                    tableModel.setValueAt(scoreSearch.getPlayerScore(), idNamePairMap.get(challengedPlayer), 1);
+                    //get last entered score
+                    showMessageDialog(String.format(
+                            "Challenge has succeeded! No matching words were found\n\n%d points will be deducted from %s's score.", penalty, challengedPlayer));
+                }
             }
-        }
+
 
         public void finishCall(){
         //TODO set up finish call; decide between JOption and new window with other options
