@@ -3,11 +3,12 @@ package Final_Project;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.Console;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 
 
 //import static input.InputUtils.*;
@@ -42,15 +43,13 @@ public class GamePlayGUI extends JFrame {
     DefaultTableModel tableModel = new DefaultTableModel();
     //holds player names to display in jlabel
     List<String> playerTurnList = new ArrayList();
-//    //hashmap to hold player names and scores
-//    Map<String, List<Integer>> playerNameScore = new HashMap<>();
+
     Map<Integer, Integer> playerIDScore = new HashMap<>();
 //    //map to hold player name and position in jatable
     Map<String, Integer> playerTablePosition = new HashMap<>();
 
     public int turnCounter =0;
-
-
+    private Object sItem;
 
     GamePlayGUI(WordController wordController) {
 
@@ -78,18 +77,17 @@ public class GamePlayGUI extends JFrame {
         //call listeners
         buttonListeners();
         //call to get number of players
-        int numPlayers = addPlayers();
+        int numPlayers = addNumPlayers();
         //call to get player names passing number of players as the argument
         playerNames(numPlayers);
         playerTurnLabel.setText(playerTurnList.get(0)+"'s Turn");
 
     }
 
-        public int addPlayers() {
+        public int addNumPlayers() {
             // ask for number of turns
             String playerNum = showInputDialog("Enter number of players");
             //regular expression to validate for only digits
-//            Pattern p = Pattern.compile("[A-Z,a-z,&%$#@!()*^]");
             Pattern p = Pattern.compile("[0-9]");
             Matcher m = p.matcher(playerNum);
             while (!m.find()) {
@@ -107,6 +105,17 @@ public class GamePlayGUI extends JFrame {
         // loop through number of players, ask player names, add to Jtablemodel and tracking list
         for (int x = 1; x < numPlayers +1; x++){
             String playerName = showInputDialog("Enter player #"+x+"'s name");
+
+            //create primer for new player score
+            int scorePrimer = 0;
+            //create a player id number
+            int id = x-1;
+            //create new ticket object for each player
+            Date date = new Date();
+            scoreObject newObject = new scoreObject(playerName,scorePrimer,id, date);
+            //pass to controller
+            wordController.addNames(newObject);
+
             //add cell directly to jtable with zero as the default for row 0
             String[] newTableRow = {playerName, "0"};
             tableModel.addRow(newTableRow);
@@ -125,7 +134,13 @@ public class GamePlayGUI extends JFrame {
 
         public void buttonListeners(){
             //method call for user score entry
-            enterWordButton.addActionListener(e -> enterScores());
+            enterWordButton.addActionListener(e -> {
+                try {
+                    enterScores();
+                } catch (NoSuchFieldException ex) {
+                    ex.printStackTrace();
+                }
+            });
             //method to consult dictionary
             dictionaryButton.addActionListener(e -> dictionaryCall());
             //method to challenge
@@ -134,13 +149,19 @@ public class GamePlayGUI extends JFrame {
             finishButton.addActionListener(e -> finishCall());
         }
 
-        public void enterScores() {
-
+        public void enterScores() throws NoSuchFieldException {
+        //TODO add all player scores to playerScores table
             //get value from enterWord text box
             int scoreString = Integer.parseInt(enterWordTextBox.getText());
 
             //used for last players score; this will be required for challenge mode to work
             playerIDScore.put(turnCounter, scoreString);
+        //TODO pull SUM of scores from database, add user input score, plug into model
+            List<scoreObject> scoreSearch = wordController.searchScore(turnCounter);
+            int currentScore = 0;
+            for (scoreObject sItem : scoreSearch){
+                currentScore += sItem.getPlayerScore();
+            }
 
             //pull current player score from the table model
             int pulledValue = Integer.parseInt(tableModel.getValueAt(turnCounter, 1).toString());
@@ -162,12 +183,14 @@ public class GamePlayGUI extends JFrame {
             //clear text box after turn
             enterWordTextBox.setText("");
         }
-    //TODO translate current mySQL database to SQLite for easier use and packaging
+
         public void dictionaryCall(){
         //get text from box
         String wordToCheck = dictionaryTextBox.getText();
+        //call method to fix text for case sensitivity when accessing database
+        String fixedWord = firstLetterUpper(wordToCheck);
         //pass text to controller for use with database
-        WordObject wordSearch = wordController.searchForWord(wordToCheck);
+        WordObject wordSearch = wordController.searchForWord(fixedWord);
         //object returned
         if (wordSearch != null) {
             String word = wordSearch.getWord();
@@ -178,6 +201,7 @@ public class GamePlayGUI extends JFrame {
             showMessageDialog("No matches found");
         }
         }
+
         public void challengeCall(){
         //TODO set up challenge method
             //get challenged players name
@@ -201,6 +225,13 @@ public class GamePlayGUI extends JFrame {
         public void finishCall(){
         //TODO set up finish call; decide between JOption and new window with other options
         }
+        //used to convert first letter of a word to upeercase and the body to lower
+        public String firstLetterUpper(String word){
+            String fixedWord = word.toLowerCase().substring(0,1).toUpperCase()+ word.substring(1);
+            return fixedWord;
+        }
+
+
 
     protected String showInputDialog(String question) {
         return JOptionPane.showInputDialog(this, question);

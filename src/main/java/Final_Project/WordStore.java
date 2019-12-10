@@ -1,6 +1,8 @@
 package Final_Project;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static Final_Project.Database.dbURI;
 
@@ -15,12 +17,17 @@ public class WordStore {
 
         try(Connection connection = DriverManager.getConnection(databaseURI);
             Statement statement = connection.createStatement()) {
+            //Drop table each time a new game starts
+            String dropCommand = "DROP TABLE IF EXISTS playerScores";
+            statement.executeUpdate(dropCommand);
+
             //create variable to save sql statement for table creation
             String createTableSQL =
                     "CREATE TABLE IF NOT EXISTS playerScores (" +
                             "name TEXT NOT NULL," +
                             "score INTEGER NOT NULL," +
-                            "turn INTEGER NOT NULL)";
+                            "playerID INTEGER NOT NULL," +
+                            "playTime NUMBER not null)";
             //pass variable to execute sql update
             statement.executeUpdate(createTableSQL);
             //catch/throw runtime exception
@@ -28,11 +35,24 @@ public class WordStore {
             throw new RuntimeException(sqle);
         }
 
+    }
+    public void addScore(scoreObject newName) throws SQLException {
+        String insertSQL = "INSERT INTO playerScores VALUES (?,?,?,?)";
 
+        Connection connection = DriverManager.getConnection(dbURI);
+        PreparedStatement preparedStatement = connection.prepareStatement(insertSQL);
+
+        preparedStatement.setString(1, newName.getPlayerName());
+        preparedStatement.setInt(2,newName.getPlayerScore());
+        preparedStatement.setInt(3, newName.getPlayerID());
+        preparedStatement.setLong(4,newName.getDatePlayed().getTime());
+        preparedStatement.execute();
+        connection.close();
     }
 
-        public WordObject checkWord(String wordSearched){
 
+
+        public WordObject checkWord(String wordSearched){
 
             String mySQLsearchWord = "SELECT * FROM entries WHERE word = ? LIMIT 1";
             try (Connection connection = DriverManager.getConnection(dbURI);
@@ -60,5 +80,32 @@ public class WordStore {
                 return null;
             }
 
+        }
+        public List<scoreObject> getCurrentScore(int id) {
+            String sqlIdSearch = "SELECT * FROM playerScores WHERE playerID = ?";
+            try (Connection connection = DriverManager.getConnection(dbURI);
+                 PreparedStatement preparedStatement = connection.prepareStatement(sqlIdSearch)) {
+                List<scoreObject> scores = new ArrayList<>();
+                //setting parameter with user entered ID
+                preparedStatement.setInt(1, id);
+                //execute query
+                ResultSet resultSet = preparedStatement.executeQuery();
+                //pull row information to create new object
+                while (resultSet.next()) {
+                    String name = resultSet.getString("name");
+                    int score = resultSet.getInt("score");
+                    int playerID = resultSet.getInt("playerID");
+                    Date date = resultSet.getDate("playTime");
+
+                    //create new object with above variables
+                    scoreObject scoreGrab = new scoreObject(name, score, playerID, date);
+                    scores.add(scoreGrab);
+                }
+                //return object
+                return scores;
+            } catch (SQLException sqle) {
+                // return null if no matches found
+                return null;
+            }
         }
     }
