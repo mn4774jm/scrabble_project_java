@@ -3,6 +3,7 @@ package Final_Project;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -31,6 +32,8 @@ public class GamePlayGUI extends JFrame {
     private WordController wordController;
     public int turnCounter =0;
     //TODO work in getRootPane.setDefaultButton() to have enter work for field(s)
+
+    //Global items that need to work for multiple methods
     //map for adding intital data to the jtable model
     Map<String, String> playerData = new HashMap<>();
     //create table model
@@ -39,7 +42,9 @@ public class GamePlayGUI extends JFrame {
     List<String> playerTurnList = new ArrayList();
     //holds player id; doubles as positional data for jtable
     Map<String, Integer> idNamePairMap = new HashMap<>();
+    //global date item global to avoid duplication
     Date date = new Date();
+
 
     GamePlayGUI(WordController wordController) {
 
@@ -64,36 +69,32 @@ public class GamePlayGUI extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setContentPane(mainPanel);
         pack();
-        setVisible(true);
+        setVisible(false);
         setTitle("Scrabble Tracking Application");
 
         //call listeners
         buttonListeners();
 
         //call to get number of players
-        int numPlayers = addNumPlayers();
+        startMenuGUI startmenuGUI = new startMenuGUI(GamePlayGUI.this);
 
-        //call to get player names passing number of players as the argument
-        playerNames(numPlayers);
-
-        //Get player 1's name for label
-        playerTurnLabel.setText(playerTurnList.get(0)+"'s Turn");
 
     }
 
         public int addNumPlayers() {
             // ask for number of turns
             String playerNum = showInputDialog("Enter number of players");
-            //regular expression to validate for only digits
-            Pattern p = Pattern.compile("[0-9]");
-            Matcher m = p.matcher(playerNum);
-            while (!m.find()) {
+            //pass string to method for numeric validation
+            boolean validation = numCheck(playerNum);
+            //while validation is false...
+            while (!validation){
                 JOptionPane.showMessageDialog(null, "Please enter only numbers");
                 playerNum = showInputDialog("Enter number of players");
-                m = p.matcher(playerNum);
+                validation = numCheck(playerNum);
             }
             // convert to integer and return
             return Integer.parseInt(playerNum);
+
         }
 
         public void playerNames(int numPlayers){
@@ -138,37 +139,39 @@ public class GamePlayGUI extends JFrame {
         public void enterScores() {
 
             //get value from enterWord text box
-            int scoreString = Integer.parseInt(enterWordTextBox.getText());
+            String scoreString = enterWordTextBox.getText();
+            boolean validation = numCheck(scoreString);
+            if (!validation){
+                JOptionPane.showMessageDialog(null, "Enter only numbers in score field");
+            }else {
+                int scoreInt = Integer.parseInt(enterWordTextBox.getText());
+                //create new object for new row in DB
+                scoreObject newScore = new scoreObject(playerTurnList.get(turnCounter), scoreInt, turnCounter, date);
 
-            //new date //TODO this item is returned repeatedly. make global to fix?
-            Date date = new Date();
+                //call method to create new row
+                wordController.addNewScore(newScore);
 
-            //create new object for new row in DB
-            scoreObject newScore = new scoreObject(playerTurnList.get(turnCounter),scoreString,turnCounter,date);
+                //get sum value from database
+                scoreCounting scoreSearch = wordController.searchScore(turnCounter);
 
-            //call method to create new row
-            wordController.addNewScore(newScore);
+                //set set score to appropriate cell
+                tableModel.setValueAt(scoreSearch.getPlayerScore(), turnCounter, 1);
 
-            //get sum value from database
-            scoreCounting scoreSearch = wordController.searchScore(turnCounter);
-
-            //set set score to appropriate cell
-            tableModel.setValueAt(scoreSearch.getPlayerScore(), turnCounter, 1);
-
-            //if not the last player in list, add 1 to the turn counter to advance the game
-            if (turnCounter < playerTurnList.size() - 1) {
-                turnCounter += 1;
-                playerTurnLabel.setText(playerTurnList.get(turnCounter) + "'s turn");
-            } else {
-                //if last player in list reset counter to 0
-                turnCounter = 0;
-                playerTurnLabel.setText(playerTurnList.get(turnCounter) + "'s turn");
+                //if not the last player in list, add 1 to the turn counter to advance the game
+                if (turnCounter < playerTurnList.size() - 1) {
+                    turnCounter += 1;
+                    playerTurnLabel.setText(playerTurnList.get(turnCounter) + "'s turn");
+                } else {
+                    //if last player in list reset counter to 0
+                    turnCounter = 0;
+                    playerTurnLabel.setText(playerTurnList.get(turnCounter) + "'s turn");
+                }
+                //clear text box after turn
             }
-            //clear text box after turn
             enterWordTextBox.setText("");
         }
 
-        public void dictionaryCall(){
+        public void dictionaryCall() {
         //get text from box and change case
         String wordToCheck = firstLetterUpper(dictionaryTextBox.getText());
         //pass text to controller for use with database
@@ -186,7 +189,9 @@ public class GamePlayGUI extends JFrame {
         dictionaryTextBox.setText("");
         }
 
-        public void challengeCall(){
+        public void challengeCall() {
+
+            //TODO getting nullpointerexception error with the jcombobox
             //get challenged players name
             String challengedPlayer = (String) challengeComboBox.getSelectedItem();
 
@@ -195,9 +200,10 @@ public class GamePlayGUI extends JFrame {
 
             //get last score from DB
             LastScoreObject lastPlay = wordController.retrieveScore(id);
+            //convert to int
 
             //Store to int
-            int penalty = lastPlay.getLastPlay() * 2;
+            int penalty = lastPlay.getLastPlay();
             //set punishment
             int scoreHammer = -(penalty);
 
@@ -277,6 +283,17 @@ public class GamePlayGUI extends JFrame {
         //convert word to lower followed by making the first letter uppercase
             String fixedWord = word.toLowerCase().substring(0,1).toUpperCase()+ word.substring(1);
             return fixedWord;
+        }
+
+        public boolean numCheck(String check){
+        //create pattern to check and match item
+            Pattern p = Pattern.compile("[0-9]");
+            Matcher m = p.matcher(check);
+        if(!m.find()){
+            return false;
+        }else{
+            return true;
+        }
         }
 
         protected String showInputDialog(String question) {

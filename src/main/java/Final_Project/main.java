@@ -6,6 +6,7 @@ import static Final_Project.Database.dbURI;
 public class main {
 
     static GamePlayGUI gamePlayGUI;
+    static startMenuGUI startmenuGUI;
 
     //create database
     public static void main(String[] args) throws SQLException {
