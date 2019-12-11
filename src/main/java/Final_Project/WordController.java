@@ -1,7 +1,6 @@
 package Final_Project;
 
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Vector;
 
 public class WordController {
@@ -11,6 +10,7 @@ public class WordController {
     WordController(WordStore store) { wordStore = store; }
 
     protected WordObject searchForWord(String wordToCheck) {
+
         return wordStore.checkWord(wordToCheck);
     }
 
@@ -32,8 +32,18 @@ public class WordController {
         LastScoreObject lastScoreObject = wordStore.retreiveLastScore(id);
         return lastScoreObject;
     }
+
     protected Vector<Vector> retrieveFinal(){
         Vector<Vector> finalScore = wordStore.finalScoreData();
         return finalScore;
     }
+    protected MVPObject retrieveMVP(){
+        MVPObject stats = wordStore.mvp();
+        return stats;
+    }
+    protected winnerObject retrieveWinner(){
+        winnerObject stats = wordStore.winner();
+        return stats;
+    }
+
 }

@@ -30,7 +30,7 @@ public class GamePlayGUI extends JFrame {
 
     private WordController wordController;
     public int turnCounter =0;
-
+    //TODO work in getRootPane.setDefaultButton() to have enter work for field(s)
     //map for adding intital data to the jtable model
     Map<String, String> playerData = new HashMap<>();
     //create table model
@@ -73,7 +73,6 @@ public class GamePlayGUI extends JFrame {
         playerTurnLabel.setText(playerTurnList.get(0)+"'s Turn");
 
     }
-
 
         public int addNumPlayers() {
             // ask for number of turns
@@ -222,16 +221,23 @@ public class GamePlayGUI extends JFrame {
         }
 
         public Vector getFinaldata(){
-        //TODO get specific scores from database for final window
             Vector<Vector> finalData= wordController.retrieveFinal();
             return finalData;
         }
 
-        public void mvp(){
-        //TODO get highest score player
-        }
-        public void populateLeaderBoard(){
+        public MVPObject MVP(){
 
+            MVPObject playScores =  wordController.retrieveMVP();
+            return playScores;
+        }
+
+        public winnerObject winner(){
+            winnerObject winScore =  wordController.retrieveWinner();
+            return winScore;
+        }
+
+        public void populateLeaderBoard(){
+        //TODO create new table for leaderboard and method to access it
         }
 
         public String firstLetterUpper(String word){

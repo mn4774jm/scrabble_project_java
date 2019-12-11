@@ -5,9 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import static Final_Project.Database.dbURI;
-
-
+//TODO comment all code
 
 public class WordStore {
 
@@ -21,7 +19,6 @@ public class WordStore {
             //Drop table each time a new game starts
             String dropCommand = "DROP TABLE IF EXISTS playerScores";
             statement.executeUpdate(dropCommand);
-
             //create variable to save sql statement for table creation
             String createTableSQL =
                     "CREATE TABLE IF NOT EXISTS playerScores (" +
@@ -35,7 +32,6 @@ public class WordStore {
         } catch (SQLException sqle) {
             throw new RuntimeException(sqle);
         }
-
     }
 
     public void addScore(scoreObject newName) throws SQLException {
@@ -51,7 +47,6 @@ public class WordStore {
         preparedStatement.execute();
         connection.close();
     }
-
 
     public WordObject checkWord(String wordSearched) {
 
@@ -90,15 +85,12 @@ public class WordStore {
             List<scoreObject> scores = new ArrayList<>();
             //setting parameter with user entered ID
             preparedStatement.setInt(1, id);
-            //execute query
+            //execute query and save to result set
             ResultSet resultSet = preparedStatement.executeQuery();
-
+            //get sum back and store to variable
             int score = resultSet.getInt("playerSum");
-
             //create new object with above variables
             scoreCounting scoreGrab = new scoreCounting(score);
-//                    scores.add(scoreGrab);
-//                }
             //return object
             return scoreGrab;
         } catch (SQLException sqle) {
@@ -130,20 +122,18 @@ public class WordStore {
     }
 
     public Vector<Vector> finalScoreData() {
-
+        //Connect to database
         try (Connection connection = DriverManager.getConnection(dbURI);
              Statement statement = connection.createStatement()) {
 
-            ResultSet resultSet = statement.executeQuery("SELECT name, MAX(score) as Max, SUM(score) as Total from playerScores");
+            ResultSet resultSet = statement.executeQuery("SELECT name, MAX(score) as Max, SUM(score) as Total from playerScores group by name");
 
             Vector<Vector> newVector = new Vector<>();
-
-            while(resultSet.next()) {
-
+            while (resultSet.next()) {
                 String name = resultSet.getString("name");
                 int maxScore = resultSet.getInt("Max");
                 int totalScore = resultSet.getInt("Total");
-
+                //create new Vector item and store data as vectors
                 Vector v = new Vector();
                 v.add(name);
                 v.add(maxScore);
@@ -152,13 +142,51 @@ public class WordStore {
                 newVector.add(v);
 
             }
-
-            //return object
+            //return Vector
             return newVector;
         } catch (SQLException sqle) {
             // return null if no matches found
             return null;
         }
+    }
 
+    public MVPObject mvp() {
+        //Connect to database
+        try (Connection connection = DriverManager.getConnection(dbURI);
+             Statement statement = connection.createStatement()) {
+
+            ResultSet resultSet = statement.executeQuery("SELECT name, MAX(score) as Max from playerScores");
+
+            String name = resultSet.getString("name");
+            int maxScore = resultSet.getInt("Max");
+            MVPObject mvp = new MVPObject(name, maxScore);
+
+            //return object
+            return mvp;
+
+        } catch (SQLException sqle) {
+            // return null if no matches found
+            return null;
+        }
+    }
+
+    public winnerObject winner() {
+        //Connect to database
+        try (Connection connection = DriverManager.getConnection(dbURI);
+             Statement statement = connection.createStatement()) {
+
+            ResultSet resultSet = statement.executeQuery("SELECT name, SUM(score) as Total from playerScores group by name order by Total DESC LIMIT 1");
+
+            String name = resultSet.getString("name");
+            int total = resultSet.getInt("Total");
+            winnerObject win = new winnerObject(name, total);
+
+            //return object
+            return win;
+
+        } catch (SQLException sqle) {
+            // return null if no matches found
+            return null;
+        }
     }
 }

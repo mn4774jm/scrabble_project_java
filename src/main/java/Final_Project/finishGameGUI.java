@@ -17,10 +17,6 @@ public class finishGameGUI extends JFrame{
     private JButton quitButton;
 
 
-
-
-    //TODO call getFinalData
-
     finishGameGUI(GamePlayGUI parentComponent){
 
 
@@ -37,17 +33,20 @@ public class finishGameGUI extends JFrame{
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         getFinal();
         setTitle("Game Results");
+        buttonListeners();
 
     }
+
     public void getFinal(){
-        //TODO currently only returns a single row; is a sql issue
+
         Vector<Vector> finalVector = parentComponent.getFinaldata();
         Vector colNames = getColumnNames();
-
         DefaultTableModel tableModel = new DefaultTableModel(finalVector,colNames);
         scoreTable.setModel(tableModel);
-
+        mvpDisplay();
+        winnerDisplay();
     }
+
     public Vector getColumnNames(){
         Vector<String> colNames = new Vector<>();
         colNames.add("Player Name");
@@ -55,8 +54,33 @@ public class finishGameGUI extends JFrame{
         colNames.add("Total");
         return colNames;
     }
+
+    public void mvpDisplay(){
+        MVPObject score = parentComponent.MVP();
+        mvpLabel.setText(String.format("MVP: %s with a high score of %d",score.getName(), score.getPlayMax()));
+    }
+
+    public void winnerDisplay(){
+        winnerObject score = parentComponent.winner();
+        winnerLabel.setText(String.format("The winner is %s with a total score of %d", score.getName(), score.getPlaySum()));
+    }
+
     public void buttonListeners(){
+        leaderButton.addActionListener(e -> clickLeaderboard());
+        playagainButton.addActionListener(e -> clickPlayAgain());
+        quitButton.addActionListener(e -> clickQuit());
+    }
 
+    public void clickLeaderboard(){
+        //TODO Call leader board GUI; do not dispose of current window
+    }
 
+    public void clickPlayAgain(){
+        //TODO dispose and call program to start from the GamePlayGUI
+
+    }
+
+    public void clickQuit(){
+        System.exit(0);
     }
 }
