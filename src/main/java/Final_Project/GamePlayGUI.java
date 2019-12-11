@@ -3,15 +3,10 @@ package Final_Project;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.io.Console;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-
-//import static input.InputUtils.*;
 
 public class GamePlayGUI extends JFrame {
 
@@ -26,8 +21,6 @@ public class GamePlayGUI extends JFrame {
     private JButton challengeButton;
 
     //components for displaying data
-    //private JList<scoreObject> playerNameList;
-    //private JList PlayerScoreList;
     private JTable playerTable;
 
     //quit function
@@ -36,6 +29,7 @@ public class GamePlayGUI extends JFrame {
     private JComboBox<String> challengeComboBox;
 
     private WordController wordController;
+    public int turnCounter =0;
 
     //map for adding intital data to the jtable model
     Map<String, String> playerData = new HashMap<>();
@@ -46,8 +40,6 @@ public class GamePlayGUI extends JFrame {
     //holds player id; doubles as positional data for jtable
     Map<String, Integer> idNamePairMap = new HashMap<>();
 
-    public int turnCounter =0;
-    private Object sItem;
 
     GamePlayGUI(WordController wordController) {
 
@@ -81,6 +73,7 @@ public class GamePlayGUI extends JFrame {
         playerTurnLabel.setText(playerTurnList.get(0)+"'s Turn");
 
     }
+
 
         public int addNumPlayers() {
             // ask for number of turns
@@ -128,13 +121,7 @@ public class GamePlayGUI extends JFrame {
 
         public void buttonListeners(){
             //method call for user score entry
-            enterWordButton.addActionListener(e -> {
-                try {
-                    enterScores();
-                } catch (NoSuchFieldException ex) {
-                    ex.printStackTrace();
-                }
-            });
+            enterWordButton.addActionListener(e -> enterScores());
             //method to consult dictionary
             dictionaryButton.addActionListener(e -> dictionaryCall());
             //method to challenge
@@ -143,7 +130,7 @@ public class GamePlayGUI extends JFrame {
             finishButton.addActionListener(e -> finishCall());
         }
 
-        public void enterScores() throws NoSuchFieldException {
+        public void enterScores() {
 
             //get value from enterWord text box
             int scoreString = Integer.parseInt(enterWordTextBox.getText());
@@ -189,7 +176,6 @@ public class GamePlayGUI extends JFrame {
         }
 
         public void challengeCall(){
-        //TODO set up challenge method
             //get challenged players name
             String challengedPlayer = (String) challengeComboBox.getSelectedItem();
             //get player id from hashmap using playername as the key
@@ -230,22 +216,34 @@ public class GamePlayGUI extends JFrame {
                 }
             }
 
-
         public void finishCall(){
-        //TODO set up finish call; decide between JOption and new window with other options
+        finishGameGUI finishGame = new finishGameGUI(GamePlayGUI.this);
+        setVisible(false);
         }
-        //used to convert first letter of a word to upeercase and the body to lower
+
+        public Vector getFinaldata(){
+        //TODO get specific scores from database for final window
+            Vector<Vector> finalData= wordController.retrieveFinal();
+            return finalData;
+        }
+
+        public void mvp(){
+        //TODO get highest score player
+        }
+        public void populateLeaderBoard(){
+
+        }
+
         public String firstLetterUpper(String word){
             String fixedWord = word.toLowerCase().substring(0,1).toUpperCase()+ word.substring(1);
             return fixedWord;
         }
 
-
-
-    protected String showInputDialog(String question) {
+        protected String showInputDialog(String question) {
         return JOptionPane.showInputDialog(this, question);
     }
-    protected void showMessageDialog(String message) {
+
+        protected void showMessageDialog(String message) {
         JOptionPane.showMessageDialog(this, message);
     }
 
