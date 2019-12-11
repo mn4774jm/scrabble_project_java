@@ -31,8 +31,10 @@ public class finishGameGUI extends JFrame{
         setPreferredSize(new Dimension(500,300));
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        getFinal();
         setTitle("Game Results");
+        getFinal();
+        mvpDisplay();
+        winnerDisplay();
         buttonListeners();
 
     }
@@ -43,8 +45,6 @@ public class finishGameGUI extends JFrame{
         Vector colNames = getColumnNames();
         DefaultTableModel tableModel = new DefaultTableModel(finalVector,colNames);
         scoreTable.setModel(tableModel);
-        mvpDisplay();
-        winnerDisplay();
     }
 
     public Vector getColumnNames(){
@@ -76,8 +76,8 @@ public class finishGameGUI extends JFrame{
     }
 
     public void clickPlayAgain(){
-        //TODO dispose and call program to start from the GamePlayGUI
 
+        //TODO dispose and call program to start from the GamePlayGUI
     }
 
     public void clickQuit(){

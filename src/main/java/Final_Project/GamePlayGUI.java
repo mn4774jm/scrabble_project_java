@@ -39,7 +39,7 @@ public class GamePlayGUI extends JFrame {
     List<String> playerTurnList = new ArrayList();
     //holds player id; doubles as positional data for jtable
     Map<String, Integer> idNamePairMap = new HashMap<>();
-
+    Date date = new Date();
 
     GamePlayGUI(WordController wordController) {
 
@@ -54,8 +54,10 @@ public class GamePlayGUI extends JFrame {
         }
         //set jtables data source to the model
         playerTable.setModel(tableModel);
+
         //centers application window
         setLocationRelativeTo(null);
+
         //set dimensions
         setPreferredSize(new Dimension(500,300));
         //close application when window is closed
@@ -64,12 +66,17 @@ public class GamePlayGUI extends JFrame {
         pack();
         setVisible(true);
         setTitle("Scrabble Tracking Application");
+
         //call listeners
         buttonListeners();
+
         //call to get number of players
         int numPlayers = addNumPlayers();
+
         //call to get player names passing number of players as the argument
         playerNames(numPlayers);
+
+        //Get player 1's name for label
         playerTurnLabel.setText(playerTurnList.get(0)+"'s Turn");
 
     }
@@ -102,7 +109,6 @@ public class GamePlayGUI extends JFrame {
             int id = x-1;
             idNamePairMap.put(playerName, id);
             //create new ticket object for each player
-            Date date = new Date();
             scoreObject newObject = new scoreObject(playerName,scorePrimer,id, date);
             //pass to controller
             wordController.addNewScore(newObject);
@@ -134,15 +140,21 @@ public class GamePlayGUI extends JFrame {
             //get value from enterWord text box
             int scoreString = Integer.parseInt(enterWordTextBox.getText());
 
+            //new date //TODO this item is returned repeatedly. make global to fix?
             Date date = new Date();
+
             //create new object for new row in DB
             scoreObject newScore = new scoreObject(playerTurnList.get(turnCounter),scoreString,turnCounter,date);
+
             //call method to create new row
             wordController.addNewScore(newScore);
+
             //get sum value from database
             scoreCounting scoreSearch = wordController.searchScore(turnCounter);
+
             //set set score to appropriate cell
             tableModel.setValueAt(scoreSearch.getPlayerScore(), turnCounter, 1);
+
             //if not the last player in list, add 1 to the turn counter to advance the game
             if (turnCounter < playerTurnList.size() - 1) {
                 turnCounter += 1;
@@ -161,7 +173,7 @@ public class GamePlayGUI extends JFrame {
         String wordToCheck = firstLetterUpper(dictionaryTextBox.getText());
         //pass text to controller for use with database
         WordObject wordSearch = wordController.searchForWord(wordToCheck);
-        //object returned
+        //object returned; DB query is set to only return one value so this is overkill but that may change
         if (wordSearch != null) {
             String word = wordSearch.getWord();
             String wordtype = wordSearch.getWordType();
@@ -177,61 +189,82 @@ public class GamePlayGUI extends JFrame {
         public void challengeCall(){
             //get challenged players name
             String challengedPlayer = (String) challengeComboBox.getSelectedItem();
+
             //get player id from hashmap using playername as the key
             int id = idNamePairMap.get(challengedPlayer);
+
             //get last score from DB
             LastScoreObject lastPlay = wordController.retrieveScore(id);
+
             //Store to int
-            int penalty = lastPlay.getLastPlay();
-            int scoreHammer = penalty - (penalty*2);
-            Date date = new Date();
+            int penalty = lastPlay.getLastPlay() * 2;
+            //set punishment
+            int scoreHammer = -(penalty);
+
             //get word to check from the play, convert to correct case format
             String challengedWord = JOptionPane.showInputDialog("Enter word in question");
             challengedWord = firstLetterUpper(challengedWord);
 
-                WordObject wordSearch = wordController.searchForWord(challengedWord);
-                if (wordSearch != null) {
-                    String word = wordSearch.getWord();
-                    String wordtype = wordSearch.getWordType();
-                    String def = wordSearch.getDefinition();
-                    showMessageDialog(String.format(
-                            "Challenge failed! Match found.\nWord: %s\nWord Type: %s\nDefinition: %s\n\n" +
-                                    "%d points will be deducted from %s's score",word, wordtype, def, penalty, playerTurnList.get(turnCounter)));
+            //Call database to search for word
+            WordObject wordSearch = wordController.searchForWord(challengedWord);
+            punishmentPhase(penalty, scoreHammer, wordSearch, challengedPlayer);
 
-                    scoreObject negativeRow = new scoreObject(playerTurnList.get(turnCounter), scoreHammer, idNamePairMap.get(playerTurnList.get(turnCounter)),date);
-                    wordController.addNewScore(negativeRow);
-                    scoreCounting scoreSearch = wordController.searchScore(turnCounter);
-                    tableModel.setValueAt(scoreSearch.getPlayerScore(), turnCounter, 1);
 
-                } else {
-                    //get challenged players positional data and last score
-                    scoreObject negativeRow = new scoreObject(challengedPlayer, scoreHammer, idNamePairMap.get(challengedPlayer),date);
-                    wordController.addNewScore(negativeRow);
-                    scoreCounting scoreSearch = wordController.searchScore(idNamePairMap.get(challengedPlayer));
-                    tableModel.setValueAt(scoreSearch.getPlayerScore(), idNamePairMap.get(challengedPlayer), 1);
-                    //get last entered score
-                    showMessageDialog(String.format(
-                            "Challenge has succeeded! No matching words were found\n\n%d points will be deducted from %s's score.", penalty, challengedPlayer));
-                }
             }
 
+        public void punishmentPhase(int penalty, int scoreHammer, WordObject wordSearch, String challengedPlayer){
+            //if this breaks, return block to just under the method call in the challengeCall method
+
+            //if exists, get items from object
+            if (wordSearch != null) {
+                String word = wordSearch.getWord();
+                String wordtype = wordSearch.getWordType();
+                String def = wordSearch.getDefinition();
+                showMessageDialog(String.format(
+                        "Challenge failed! Match found.\nWord: %s\nWord Type: %s\nDefinition: %s\n\n" +
+                                "%d points will be deducted from %s's score",word, wordtype, def, penalty, playerTurnList.get(turnCounter)));
+
+                //create new row with negative values and add to database
+                scoreObject negativeRow = new scoreObject(playerTurnList.get(turnCounter), scoreHammer, idNamePairMap.get(playerTurnList.get(turnCounter)),date);
+                wordController.addNewScore(negativeRow);
+
+                //get new updated score and set into table model
+                scoreCounting scoreSearch = wordController.searchScore(turnCounter);
+                tableModel.setValueAt(scoreSearch.getPlayerScore(), turnCounter, 1);
+
+            } else {
+                //get challenged players positional data and last score; add new row with negative score value
+                scoreObject negativeRow = new scoreObject(challengedPlayer, scoreHammer, idNamePairMap.get(challengedPlayer),date);
+                wordController.addNewScore(negativeRow);
+                //search for current score after row added and set to model
+                scoreCounting scoreSearch = wordController.searchScore(idNamePairMap.get(challengedPlayer));
+                tableModel.setValueAt(scoreSearch.getPlayerScore(), idNamePairMap.get(challengedPlayer), 1);
+                //get last entered score
+                showMessageDialog(String.format(
+                        "Challenge has succeeded! No matching words were found\n\n%d points will be deducted from %s's score.", penalty, challengedPlayer));
+            }
+        }
+
         public void finishCall(){
+        //call to launch new GUI. Set visible to false
         finishGameGUI finishGame = new finishGameGUI(GamePlayGUI.this);
         setVisible(false);
         }
 
         public Vector getFinaldata(){
+        //call controller for final player stats; return data to finishgamegui
             Vector<Vector> finalData= wordController.retrieveFinal();
             return finalData;
         }
 
         public MVPObject MVP(){
-
+        //call controller for highest play score; return to finishGUI
             MVPObject playScores =  wordController.retrieveMVP();
             return playScores;
         }
 
         public winnerObject winner(){
+        //call controller for winner score; return
             winnerObject winScore =  wordController.retrieveWinner();
             return winScore;
         }
@@ -241,6 +274,7 @@ public class GamePlayGUI extends JFrame {
         }
 
         public String firstLetterUpper(String word){
+        //convert word to lower followed by making the first letter uppercase
             String fixedWord = word.toLowerCase().substring(0,1).toUpperCase()+ word.substring(1);
             return fixedWord;
         }
