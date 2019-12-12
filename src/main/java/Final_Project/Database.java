@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class Database {
-
+    //path name for database
     static String dbURI = "jdbc:sqlite:data.sqlite";
 
 

@@ -1,17 +1,16 @@
 package Final_Project;
 
 public class scoreCounting {
+
     private int playerScore;
 
-    public scoreCounting(int score){
+    //constructor
+    scoreCounting(int score){
         this.playerScore = score;
     }
-
+    //getter created
     public int getPlayerScore() {
         return playerScore;
     }
 
-    public void setPlayerScore(int playerScore) {
-        this.playerScore = playerScore;
-    }
 }

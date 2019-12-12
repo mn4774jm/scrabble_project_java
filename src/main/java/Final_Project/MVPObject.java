@@ -5,16 +5,12 @@ public class MVPObject {
     private int playMax;
 
     MVPObject(String n, int p){
-        name = n;
-        playMax = p;
+        //constructor
+        this.name = n;
+        this.playMax = p;
     }
-
+    //getters for object
     public String getName() { return name; }
-
-    public void setName(String name) { this.name = name; }
-
     public int getPlayMax() { return playMax; }
-
-    public void setPlayMax(int playMax) { this.playMax = playMax; }
 
 }

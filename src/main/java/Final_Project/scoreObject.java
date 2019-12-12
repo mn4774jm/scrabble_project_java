@@ -10,7 +10,7 @@ public class scoreObject {
     private Date datePlayed;
 
 
-
+    //set up constructors
     public scoreObject(String player, int score, int id, Date date){
         this.playerName = player;
         this.playerScore = score;
@@ -18,24 +18,14 @@ public class scoreObject {
         this.datePlayed = date;
 
     }
-
+    //create getters and toString
     public Date getDatePlayed() { return datePlayed; }
-
-    public void setDatePlayed(Date datePlayed) { this.datePlayed = datePlayed; }
 
     public String getPlayerName() { return playerName; }
 
-    public void setPlayerName(String playerName) { this.playerName = playerName; }
-
     public int getPlayerScore() { return playerScore; }
 
-    public void setPlayerScore(int playerScore) { this.playerScore = playerScore; }
-
     public int getPlayerID() { return playerID; }
-
-    public void setPlayerID(int playerID) {
-        this.playerID = playerID;
-    }
 
     @Override
     public String toString() {

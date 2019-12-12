@@ -16,7 +16,9 @@ public class startMenuGUI extends JFrame{
     public startMenuGUI(GamePlayGUI gamePlayGUI) {
 
         this.gamePlayGUI = gamePlayGUI;
+        setPreferredSize(new Dimension(200, 200));
         setContentPane(mainPanel);
+        setTitle("Scrabble_Utility");
         pack();
         setVisible(true);
         buttonListeners();
