@@ -1,5 +1,7 @@
 package Final_Project;
 
+//TODO translate to non-object variable types
+
 public class MVPObject {
     private String name;
     private int playMax;

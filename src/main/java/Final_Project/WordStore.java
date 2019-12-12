@@ -70,6 +70,7 @@ public class WordStore {
     }
 
     public void addScore(scoreObject newName) throws SQLException {
+        //uses prepared statements to insert new player score row
         String insertSQL = "INSERT INTO playerScores VALUES (?,?,?,?)";
 
         Connection connection = DriverManager.getConnection(dbURI);

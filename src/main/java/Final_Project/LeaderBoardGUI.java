@@ -25,10 +25,13 @@ public class LeaderBoardGUI extends JFrame{
         setVisible(true);
         buttonListeners();
         setLocationRelativeTo(null);
+        rootPane.setDefaultButton(closeButton);
+
     }
     public void buttonListeners(){
         closeButton.addActionListener(e -> dispose());
     }
+
     public void populateTable(){
         Vector<Vector> winVector = gamePlayGUI.winnerData();
       Vector colNames = getColumns();

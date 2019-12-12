@@ -31,7 +31,6 @@ public class GamePlayGUI extends JFrame {
 
     private WordController wordController;
     public int turnCounter =0;
-    //TODO work in getRootPane.setDefaultButton() to have enter work for field(s)
 
     //Global items that need to work for multiple methods
     //map for adding intital data to the jtable model
@@ -77,7 +76,6 @@ public class GamePlayGUI extends JFrame {
 
         //call to get number of players
         startMenuGUI startmenuGUI = new startMenuGUI(GamePlayGUI.this);
-
     }
 
     public int addNumPlayers () {
@@ -137,7 +135,6 @@ public class GamePlayGUI extends JFrame {
 
     public void enterScores () {
 
-        //get value from enterWord text box
         String scoreString = enterWordTextBox.getText();
         boolean validation = numCheck(scoreString);
         if (!validation) {
