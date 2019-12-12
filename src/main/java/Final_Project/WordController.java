@@ -1,6 +1,7 @@
 package Final_Project;
 
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Vector;
 
 public class WordController {
@@ -47,6 +48,20 @@ public class WordController {
     protected winnerObject retrieveWinner(){
         winnerObject stats = wordStore.winner();
         return stats;
+    }
+
+    protected boolean addWinScore(winnerObject nameToAdd) {
+        try{
+            wordStore.addWinningScore(nameToAdd);
+            return true;
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    protected Vector<Vector> getLeadersList() {
+        Vector<Vector> leaders = wordStore.highScores();
+        return leaders;
     }
 
 }

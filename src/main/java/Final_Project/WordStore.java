@@ -28,10 +28,20 @@ public class WordStore {
                             "playTime NUMBER not null)";
             //pass variable to execute sql update
             statement.executeUpdate(createTableSQL);
+
+            //script to create leaderboard table
+            String createLeaderboard =
+                    "CREATE TABLE IF NOT EXISTS leaderBoard (" +
+                            "name TEXT NOT NULL," +
+                            "Total INTEGER NOT NULL)";
+            //execute
+            statement.executeUpdate(createLeaderboard);
+
             //catch/throw runtime exception
         } catch (SQLException sqle) {
             throw new RuntimeException(sqle);
         }
+
     }
 
     public void addScore(scoreObject newName) throws SQLException {
@@ -82,7 +92,6 @@ public class WordStore {
         String sqlIdSearch = "SELECT SUM(Score) AS playerSum FROM playerScores WHERE playerID = ?";
         try (Connection connection = DriverManager.getConnection(dbURI);
              PreparedStatement preparedStatement = connection.prepareStatement(sqlIdSearch)) {
-            List<scoreObject> scores = new ArrayList<>();
             //setting parameter with user entered ID
             preparedStatement.setInt(1, id);
             //execute query and save to result set
@@ -127,7 +136,6 @@ public class WordStore {
              Statement statement = connection.createStatement()) {
 
             ResultSet resultSet = statement.executeQuery("SELECT name, MAX(score) as Max, SUM(score) as Total from playerScores group by name");
-
             Vector<Vector> newVector = new Vector<>();
             while (resultSet.next()) {
                 String name = resultSet.getString("name");
@@ -189,4 +197,43 @@ public class WordStore {
             return null;
         }
     }
+
+    public void addWinningScore(winnerObject newName) throws SQLException {
+        String insertSQL = "INSERT INTO leaderBoard VALUES (?,?)";
+
+        Connection connection = DriverManager.getConnection(dbURI);
+        PreparedStatement preparedStatement = connection.prepareStatement(insertSQL);
+        preparedStatement.setString(1, newName.getName());
+        preparedStatement.setInt(2, newName.getPlaySum());
+        preparedStatement.execute();
+        connection.close();
+
+    }
+
+    public Vector<Vector> highScores() {
+
+        //Connect to database
+        try (Connection connection = DriverManager.getConnection(dbURI);
+             Statement statement = connection.createStatement()) {
+
+            ResultSet resultSet = statement.executeQuery("SELECT name, Total from leaderBoard order by Total DESC LIMIT 10");
+            Vector<Vector> newVector = new Vector<>();
+            while(resultSet.next()) {
+                String name = resultSet.getString("name");
+                int total = resultSet.getInt("Total");
+                Vector v = new Vector();
+                v.add(name);
+                v.add(total);
+
+                newVector.add(v);
+            }
+            //return object
+            return newVector;
+
+        } catch (SQLException sqle) {
+            // return null if no matches found
+            return null;
+        }
+    }
 }
+

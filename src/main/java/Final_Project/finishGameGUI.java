@@ -72,7 +72,7 @@ public class finishGameGUI extends JFrame{
     }
 
     public void clickLeaderboard(){
-        //TODO Call leader board GUI; do not dispose of current window
+        parentComponent.getLeaderBoard();
     }
 
     public void clickPlayAgain(){

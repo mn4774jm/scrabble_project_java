@@ -27,6 +27,7 @@ public class startMenuGUI extends JFrame{
     public void buttonListeners(){
         StartButton.addActionListener(e -> startGame());
         rulesButton.addActionListener(e -> callRules());
+        leaderboardButton.addActionListener(e -> gamePlayGUI.getLeaderBoard());
         quitButton.addActionListener(e -> quit());
     }
     public void startGame(){
