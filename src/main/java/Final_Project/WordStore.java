@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-//TODO comment all code
-
 public class WordStore {
 
     private String dbURI;
@@ -71,7 +69,6 @@ public class WordStore {
         connection.close();
     }
 
-
     public void addScore(scoreObject newName) throws SQLException {
         String insertSQL = "INSERT INTO playerScores VALUES (?,?,?,?)";
 
@@ -116,7 +113,7 @@ public class WordStore {
 
     }
 
-    public scoreCounting getCurrentScore(int id) {
+    public int getCurrentScore(int id) {
         String sqlIdSearch = "SELECT SUM(Score) AS playerSum FROM playerScores WHERE playerID = ?";
         try (Connection connection = DriverManager.getConnection(dbURI);
              PreparedStatement preparedStatement = connection.prepareStatement(sqlIdSearch)) {
@@ -126,13 +123,11 @@ public class WordStore {
             ResultSet resultSet = preparedStatement.executeQuery();
             //get sum back and store to variable
             int score = resultSet.getInt("playerSum");
-            //create new object with above variables
-            scoreCounting scoreGrab = new scoreCounting(score);
             //return object
-            return scoreGrab;
+            return score;
         } catch (SQLException sqle) {
             // return null if no matches found
-            return null;
+            return 0;
         }
     }
 

@@ -18,6 +18,7 @@ public class LeaderBoardGUI extends JFrame{
         this.gamePlayGUI = gamePlayGUI;
         leaderTable.setModel(tableModel);
         setPreferredSize(new Dimension(500, 300));
+        setTitle("Leader Board");
         populateTable();
         setContentPane(mainPanel);
         pack();

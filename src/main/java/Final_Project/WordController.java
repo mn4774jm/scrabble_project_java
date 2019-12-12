@@ -28,8 +28,8 @@ public class WordController {
     }
 
     //gets current score for player. Data used to populate jtable
-    protected scoreCounting searchScore(int turnCounter) {
-        scoreCounting score = wordStore.getCurrentScore(turnCounter);
+    protected int searchScore(int turnCounter) {
+        int score = wordStore.getCurrentScore(turnCounter);
         return score;
     }
 

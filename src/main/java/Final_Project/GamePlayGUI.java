@@ -78,7 +78,6 @@ public class GamePlayGUI extends JFrame {
         //call to get number of players
         startMenuGUI startmenuGUI = new startMenuGUI(GamePlayGUI.this);
 
-
     }
 
     public int addNumPlayers () {
@@ -152,10 +151,10 @@ public class GamePlayGUI extends JFrame {
             wordController.addNewScore(newScore);
 
             //get sum value from database
-            scoreCounting scoreSearch = wordController.searchScore(turnCounter);
+            int scoreSearch = wordController.searchScore(turnCounter);
 
             //set set score to appropriate cell
-            tableModel.setValueAt(scoreSearch.getPlayerScore(), turnCounter, 1);
+            tableModel.setValueAt(scoreSearch, turnCounter, 1);
 
             //if not the last player in list, add 1 to the turn counter to advance the game
             if (turnCounter < playerTurnList.size() - 1) {
@@ -235,16 +234,16 @@ public class GamePlayGUI extends JFrame {
             wordController.addNewScore(negativeRow);
 
             //get new updated score and set into table model
-            scoreCounting scoreSearch = wordController.searchScore(turnCounter);
-            tableModel.setValueAt(scoreSearch.getPlayerScore(), turnCounter, 1);
+            int scoreSearch = wordController.searchScore(turnCounter);
+            tableModel.setValueAt(scoreSearch, turnCounter, 1);
 
         } else {
             //get challenged players positional data and last score; add new row with negative score value
             scoreObject negativeRow = new scoreObject(challengedPlayer, scoreHammer, idNamePairMap.get(challengedPlayer), date);
             wordController.addNewScore(negativeRow);
             //search for current score after row added and set to model
-            scoreCounting scoreSearch = wordController.searchScore(idNamePairMap.get(challengedPlayer));
-            tableModel.setValueAt(scoreSearch.getPlayerScore(), idNamePairMap.get(challengedPlayer), 1);
+            int scoreSearch = wordController.searchScore(idNamePairMap.get(challengedPlayer));
+            tableModel.setValueAt(scoreSearch, idNamePairMap.get(challengedPlayer), 1);
             //get last entered score
             showMessageDialog(String.format(
                     "Challenge has succeeded! No matching words were found\n\n%d points will be deducted from %s's score.", penalty, challengedPlayer));
