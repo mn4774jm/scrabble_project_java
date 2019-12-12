@@ -2,6 +2,7 @@ package Final_Project;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.util.Vector;
 
 public class LeaderBoardGUI extends JFrame{
@@ -16,6 +17,7 @@ public class LeaderBoardGUI extends JFrame{
 
         this.gamePlayGUI = gamePlayGUI;
         leaderTable.setModel(tableModel);
+        setPreferredSize(new Dimension(500, 300));
         populateTable();
         setContentPane(mainPanel);
         pack();

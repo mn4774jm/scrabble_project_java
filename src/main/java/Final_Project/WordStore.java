@@ -13,7 +13,7 @@ public class WordStore {
 
     WordStore(String databaseURI) throws SQLException {
         this.dbURI = databaseURI;
-
+        //create new tables (excluding the entries table due to sheer size)
         try (Connection connection = DriverManager.getConnection(databaseURI);
              Statement statement = connection.createStatement()) {
             //Drop table each time a new game starts
@@ -41,8 +41,36 @@ public class WordStore {
         } catch (SQLException sqle) {
             throw new RuntimeException(sqle);
         }
-
+        //call method to populate if empty
+        populateLearderBoard();
     }
+
+    public void populateLearderBoard() throws SQLException{
+        //This method uses conditional logic to check if the leaderBoard table is empty
+        //If so; the table is populated with a hardcoded starter set
+        Connection connection = DriverManager.getConnection(dbURI);
+        Statement statement = connection.createStatement();
+        //query to check for rows in table
+        String checkForEmpty =
+                "SELECT count(*) AS count FROM leaderBoard";
+        //execute and store to result set
+        ResultSet resultSet = statement.executeQuery(checkForEmpty);
+        //get value for query value
+        int rowCount = resultSet.getInt("count");
+        //if table is empty insert rows
+        if(rowCount == 0) {
+            String insertSQL =
+                "INSERT INTO leaderBoard VALUES ('Krognak The Unbreakable',200);"+
+                        "INSERT INTO leaderBoard VALUES ('Hans Gruber', 190);"+
+                        "INSERT INTO leaderBoard VALUES ('The Eagles... collectively',180);"+
+                        "INSERT INTO leaderBoard VALUES ('Derek the moderalety learned', 170);"+
+                        "INSERT INTO leaderBoard VALUES ('A very surprised Randy Quaid', 160);";
+            statement.executeUpdate(insertSQL);
+            connection.close();
+        }
+        connection.close();
+    }
+
 
     public void addScore(scoreObject newName) throws SQLException {
         String insertSQL = "INSERT INTO playerScores VALUES (?,?,?,?)";
