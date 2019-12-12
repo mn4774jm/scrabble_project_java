@@ -3,6 +3,7 @@ package Final_Project;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.sql.SQLException;
 import java.util.Vector;
 
 public class finishGameGUI extends JFrame{
@@ -67,7 +68,13 @@ public class finishGameGUI extends JFrame{
 
     public void buttonListeners(){
         leaderButton.addActionListener(e -> clickLeaderboard());
-        playagainButton.addActionListener(e -> clickPlayAgain());
+        playagainButton.addActionListener(e -> {
+            try {
+                clickPlayAgain();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        });
         quitButton.addActionListener(e -> clickQuit());
     }
 
@@ -75,8 +82,9 @@ public class finishGameGUI extends JFrame{
         parentComponent.getLeaderBoard();
     }
 
-    public void clickPlayAgain(){
-
+    public void clickPlayAgain() throws SQLException {
+        main.restart();
+        dispose();
         //TODO dispose and call program to start from the GamePlayGUI
     }
 

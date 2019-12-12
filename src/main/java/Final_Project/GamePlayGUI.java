@@ -308,6 +308,10 @@ public class GamePlayGUI extends JFrame {
             return true;
         }
     }
+
+    protected void end(){
+        dispose();
+    }
     //pop-up for user entry
     protected String showInputDialog (String question){
         return JOptionPane.showInputDialog(this, question);

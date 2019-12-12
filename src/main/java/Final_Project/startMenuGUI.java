@@ -35,6 +35,7 @@ public class startMenuGUI extends JFrame{
         gamePlayGUI.setVisible(true);
         int numPlayers = gamePlayGUI.addNumPlayers();
         gamePlayGUI.playerNames(numPlayers);
+
     }
 
     public void callRules(){
