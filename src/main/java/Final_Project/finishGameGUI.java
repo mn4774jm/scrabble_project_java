@@ -8,7 +8,8 @@ import java.util.Vector;
 
 public class finishGameGUI extends JFrame{
     //required to reference GamePlayGUI
-    private GamePlayGUI parentComponent;
+    private GamePlayGUI gamePlayGUI;
+    //declare components
     private JPanel finishMainPanel;
     private JTable scoreTable;
     private JLabel winnerLabel;
@@ -18,16 +19,16 @@ public class finishGameGUI extends JFrame{
     private JButton quitButton;
 
 
-    finishGameGUI(GamePlayGUI parentComponent){
+    finishGameGUI(GamePlayGUI gamePlayGUI){
+        
+        //create reference to use methods in GamePlayGUI
+        this.gamePlayGUI = gamePlayGUI;
 
-
-                //create reference to use methods in GamePlayGUI
-        this.parentComponent = parentComponent;
-
+        //set up basic elements
         setContentPane(finishMainPanel);
         pack();
         setVisible(true);
-        parentComponent.setEnabled(false);
+        gamePlayGUI.setEnabled(false);
         setLocationRelativeTo(null);
         setPreferredSize(new Dimension(500,300));
         pack();
@@ -41,14 +42,18 @@ public class finishGameGUI extends JFrame{
     }
 
     public void getFinal(){
-
-        Vector<Vector> finalVector = parentComponent.getFinaldata();
+        //call to get final score data from the gameplay gui
+        Vector<Vector> finalVector = gamePlayGUI.getFinaldata();
+        //get column names for the final 
         Vector colNames = getColumnNames();
+        //create model for use with jtable
         DefaultTableModel tableModel = new DefaultTableModel(finalVector,colNames);
+        //set data source
         scoreTable.setModel(tableModel);
     }
 
     public Vector getColumnNames(){
+        //create and set columns for table
         Vector<String> colNames = new Vector<>();
         colNames.add("Player Name");
         colNames.add("High Score");
@@ -57,17 +62,23 @@ public class finishGameGUI extends JFrame{
     }
 
     public void mvpDisplay(){
-        MVPObject score = parentComponent.MVP();
+        //get info for player with the highest individual score 
+        MVPObject score = gamePlayGUI.MVP();
+        //info set to label
         mvpLabel.setText(String.format("MVP: %s with a high score of %d",score.getName(), score.getPlayMax()));
     }
 
     public void winnerDisplay(){
-        winnerObject score = parentComponent.winner();
+        //get winner data
+        winnerObject score = gamePlayGUI.winner();
+        //print to label
         winnerLabel.setText(String.format("The winner is %s with a total score of %d", score.getName(), score.getPlaySum()));
     }
 
     public void buttonListeners(){
+        //button calls
         leaderButton.addActionListener(e -> clickLeaderboard());
+        //exception handling for restart
         playagainButton.addActionListener(e -> {
             try {
                 clickPlayAgain();
@@ -79,16 +90,18 @@ public class finishGameGUI extends JFrame{
     }
 
     public void clickLeaderboard(){
-        parentComponent.getLeaderBoard();
+        //call to launch leaderBoard
+        gamePlayGUI.getLeaderBoard();
     }
 
     public void clickPlayAgain() throws SQLException {
+        //calls restart in main function and disposes of the current window
         main.restart();
         dispose();
-        //TODO dispose and call program to start from the GamePlayGUI
     }
 
     public void clickQuit(){
+        //closes program with normal shutdown status
         System.exit(0);
     }
 }

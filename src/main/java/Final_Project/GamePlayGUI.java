@@ -29,8 +29,10 @@ public class GamePlayGUI extends JFrame {
     private JLabel playerTurnLabel;
     private JComboBox<String> challengeComboBox;
 
+    //reference to controller
     private WordController wordController;
     public int turnCounter =0;
+
 
     //Global items that need to work for multiple methods
     //map for adding intital data to the jtable model
@@ -41,7 +43,7 @@ public class GamePlayGUI extends JFrame {
     List<String> playerTurnList = new ArrayList();
     //holds player id; doubles as positional data for jtable
     Map<String, Integer> idNamePairMap = new HashMap<>();
-    //global date item global to avoid duplication
+    //global date item
     Date date = new Date();
 
 
@@ -187,31 +189,32 @@ public class GamePlayGUI extends JFrame {
 
     public void challengeCall () {
 
-        //TODO getting nullpointerexception error with the jcombobox
         //get challenged players name
         String challengedPlayer = (String) challengeComboBox.getSelectedItem();
+        //assert to avoid null pointer exception when validating combobox
+        assert challengedPlayer != null;
+        //if name not selected user is messaged
+        if (challengedPlayer.equals("Choose player to challenge")){
+            showMessageDialog("Please select a player to challenge");
+        }else {
+            //get player id from hashmap using playername as the key
+            int id = idNamePairMap.get(challengedPlayer);
 
-        //get player id from hashmap using playername as the key
-        int id = idNamePairMap.get(challengedPlayer);
+            //get last score from DB
+            int lastPlay = wordController.retrieveScore(id);
 
-        //get last score from DB
-        LastScoreObject lastPlay = wordController.retrieveScore(id);
-        //convert to int
+            //penalty variable
+            int scoreHammer = -(lastPlay);
 
-        //Store to int
-        int penalty = lastPlay.getLastPlay();
-        //set punishment
-        int scoreHammer = -(penalty);
+            //get word to check from the play, convert to correct case format
+            String challengedWord = JOptionPane.showInputDialog("Enter word in question");
+            challengedWord = firstLetterUpper(challengedWord);
 
-        //get word to check from the play, convert to correct case format
-        String challengedWord = JOptionPane.showInputDialog("Enter word in question");
-        challengedWord = firstLetterUpper(challengedWord);
+            //Call database to search for word
+            WordObject wordSearch = wordController.searchForWord(challengedWord);
+            punishmentPhase(lastPlay, scoreHammer, wordSearch, challengedPlayer);
 
-        //Call database to search for word
-        WordObject wordSearch = wordController.searchForWord(challengedWord);
-        punishmentPhase(penalty, scoreHammer, wordSearch, challengedPlayer);
-
-
+        }
     }
 
     public void punishmentPhase ( int penalty, int scoreHammer, WordObject wordSearch, String challengedPlayer){
@@ -248,7 +251,7 @@ public class GamePlayGUI extends JFrame {
     }
 
     public void finishCall () {
-        //call to launch new GUI. Set visible to false
+        //call to launch new GUI. Set visible for gameplay window to false
         finishGameGUI finishGame = new finishGameGUI(GamePlayGUI.this);
         setVisible(false);
     }
@@ -279,22 +282,24 @@ public class GamePlayGUI extends JFrame {
     }
 
     public Vector winnerData () {
+        //call to retrieve winners score object
         Vector<Vector> leaders = wordController.getLeadersList();
         return leaders;
     }
 
     public void getLeaderBoard () {
+        //call to get data from the leaderBoard table
         LeaderBoardGUI leaders = new LeaderBoardGUI(GamePlayGUI.this);
     }
 
-    //modify user entered individual word strings to be title case
     public String firstLetterUpper (String word){
         //convert word to lower followed by making the first letter uppercase
         String fixedWord = word.toLowerCase().substring(0, 1).toUpperCase() + word.substring(1);
         return fixedWord;
     }
-    //validates numeric entry
+
     public boolean numCheck (String check){
+        //validation to check that entry is numeric
         //create pattern to check and match item
         Pattern p = Pattern.compile("[0-9]");
         Matcher m = p.matcher(check);
@@ -306,13 +311,15 @@ public class GamePlayGUI extends JFrame {
     }
 
     protected void end(){
+        //dispose of window for use with the restart function
         dispose();
     }
-    //pop-up for user entry
+
     protected String showInputDialog (String question){
+        //pop-up for use with number of players and player names
         return JOptionPane.showInputDialog(this, question);
     }
-    //pop-up for messages to user
+
     protected void showMessageDialog (String message){
         JOptionPane.showMessageDialog(this, message);
     }

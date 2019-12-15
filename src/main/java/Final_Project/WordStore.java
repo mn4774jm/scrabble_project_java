@@ -58,12 +58,15 @@ public class WordStore {
         //if table is empty insert rows
         if(rowCount == 0) {
             String insertSQL =
-                "INSERT INTO leaderBoard VALUES ('Krognak The Unbreakable',200);"+
-                        "INSERT INTO leaderBoard VALUES ('Hans Gruber', 190);"+
-                        "INSERT INTO leaderBoard VALUES ('The Eagles... collectively',180);"+
-                        "INSERT INTO leaderBoard VALUES ('Derek the moderalety learned', 170);"+
-                        "INSERT INTO leaderBoard VALUES ('A very surprised Randy Quaid', 160);";
+                    //These insert could be more concise but for reabability I left as is
+                    "INSERT INTO leaderBoard VALUES ('Krognak The Unbreakable',200);"+
+                    "INSERT INTO leaderBoard VALUES ('Hans Gruber', 190);"+
+                    "INSERT INTO leaderBoard VALUES ('The Eagles... collectively',180);"+
+                    "INSERT INTO leaderBoard VALUES ('Derek the moderalety learned', 170);"+
+                    "INSERT INTO leaderBoard VALUES ('A very surprised Randy Quaid', 160);";
+            //execute update
             statement.executeUpdate(insertSQL);
+            //close connection
             connection.close();
         }
         connection.close();
@@ -72,24 +75,23 @@ public class WordStore {
     public void addScore(scoreObject newName) throws SQLException {
         //uses prepared statements to insert new player score row
         String insertSQL = "INSERT INTO playerScores VALUES (?,?,?,?)";
-
+        //connect to DB
         Connection connection = DriverManager.getConnection(dbURI);
         PreparedStatement preparedStatement = connection.prepareStatement(insertSQL);
-
+        //assign prepared statements
         preparedStatement.setString(1, newName.getPlayerName());
         preparedStatement.setInt(2, newName.getPlayerScore());
         preparedStatement.setInt(3, newName.getPlayerID());
         preparedStatement.setLong(4, newName.getDatePlayed().getTime());
+        //execure prepared statements and close connection
         preparedStatement.execute();
         connection.close();
     }
 
     public WordObject checkWord(String wordSearched) {
-
+        //SQL statement to search DB with user's word
         String mySQLsearchWord = "SELECT * FROM entries WHERE word = ? LIMIT 1";
         try (Connection connection = DriverManager.getConnection(dbURI);
-
-
              PreparedStatement preparedStatement = connection.prepareStatement(mySQLsearchWord)) {
 
             //setting parameter with user entered ID
@@ -132,7 +134,7 @@ public class WordStore {
         }
     }
 
-    public LastScoreObject retreiveLastScore(int id) {
+    public int retreiveLastScore(int id) {
         String sqlIdSearch = "SELECT score FROM playerScores WHERE playerID = ? AND score > 0 ORDER by playTime DESC LIMIT 1";
         try (Connection connection = DriverManager.getConnection(dbURI);
              PreparedStatement preparedStatement = connection.prepareStatement(sqlIdSearch)) {
@@ -141,16 +143,12 @@ public class WordStore {
             preparedStatement.setInt(1, id);
             //execute query
             ResultSet resultSet = preparedStatement.executeQuery();
-            int score = resultSet.getInt("score");
 
-            //create new object with above variables
-            LastScoreObject scoreGrab = new LastScoreObject(score);
-
-            //return object
-            return scoreGrab;
+            //return last score
+            return resultSet.getInt("score");
         } catch (SQLException sqle) {
-            // return null if no matches found
-            return null;
+            // return zero if no matches found
+            return 0;
         }
     }
 

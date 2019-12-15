@@ -27,6 +27,7 @@ public class scoreObject {
 
     public int getPlayerID() { return playerID; }
 
+    //create toString method
     @Override
     public String toString() {
         return "scoreObject{" +

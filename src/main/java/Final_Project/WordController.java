@@ -34,8 +34,8 @@ public class WordController {
     }
 
     //gets the last score played for specific player
-    protected LastScoreObject retrieveScore(int id){
-        LastScoreObject lastScoreObject = wordStore.retreiveLastScore(id);
+    protected int retrieveScore(int id){
+        int lastScoreObject = wordStore.retreiveLastScore(id);
         return lastScoreObject;
     }
 
