@@ -28,6 +28,9 @@ The Scrabble Utility application is for use with keeping score for a round of sc
         
 * There are currently no know bugs for the program. I would, however, appreciate feedback if issues are discovered. Bugs can be sent to indierevolver@gmail.com
 
-* Program was built using intellij with the Java 12.02 SDK. All databases are built in using SQLite and should not require any additional resources outside of a java IDE. All dependencies can be found within the pom.xml file
+* Program was built using intellij with the Java 12.02 SDK. All databases are built in using SQLite and should not require any additional resources outside of a java IDE. All dependencies can be found within the pom.xml file.
+The entries database originally came from Sourceforge https://sourceforge.net/projects/mysqlenglishdictionary/ from user x16bkkamz6rkb78, and converted from MySQL to SQLite using rebasedata.com.
+
+
            
     
